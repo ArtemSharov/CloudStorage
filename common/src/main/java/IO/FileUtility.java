@@ -3,6 +3,8 @@ package IO;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileUtility {
 
@@ -56,16 +58,45 @@ public class FileUtility {
         }
     }
 
+    public static void downloadFile(Socket socket, String fileName) throws IOException{
+
+            DataInputStream is = new DataInputStream(socket.getInputStream());
+            System.out.println("fileName: " + fileName);
+            File file = new File("./common/client/" + fileName);
+            file.createNewFile();
+            try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+                dos.writeUTF(fileName);
+                byte[] buffer = new byte[8192];
+                while (true) {
+                    int r = is.read(buffer);
+                    if (r == -1) break;
+                    dos.write(buffer, 0, r);
+                }
+            }
+            System.out.println("File downloaded!");
+    }
+public void showAllFiles(Socket socket){
+
+    File dir = new File(".common/server/" + serverDir);
+    List<File> lst = new ArrayList<>();
+    for ( File file : dir.listFiles() ){
+        if ( file.isFile() )
+            lst.add(file);
+    }
+    System.out.println(lst);
+}
 
     public static void main(String[] args) throws IOException {
          //createFile("./common/1.txt");
         // createDirectory("./common/dir1");
 //        long start = System.currentTimeMillis();
-//        move(new File("./common/dir1"), new File("./common/1.txt"));
+      // move(new File("./common/dir1"), new File("./common/1.txt"));
 //        long end = System.currentTimeMillis();
 //        System.out.println("time: " + (end - start) + " ms.");
-        sendFile(new Socket("localhost", 8189),
-                new File("./common/1.txt"));
+        //sendFile(new Socket("localhost", 8189),
+              // new File("./common/gora-22.jpg"));
+        downloadFile(new Socket("localhost", 8189),
+                "gor.jpg");
     }
 
 }
